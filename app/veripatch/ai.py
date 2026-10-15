@@ -57,6 +57,8 @@ def _chat(payload, client=None):
                         dict(role='user', content=json.dumps(payload))]
             if error: messages.append(dict(role='user', content='Previous response failed validation: '+str(error)[:700]+'. Return corrected JSON only.'))
             schema = Analysis.model_json_schema()
+            if str(payload.get('task','')).startswith('Create one integrated'):
+                schema['properties']['recommendations']['maxItems'] = 1
             ids = [f['id'] for f in payload.get('findings', [])]
             if ids:
                 schema['properties']['unresolved_issue_ids']['items']['enum'] = ids

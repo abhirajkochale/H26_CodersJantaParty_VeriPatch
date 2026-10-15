@@ -78,3 +78,25 @@ def test_worker_hash_rejected_before_clone(monkeypatch):
     monkeypatch.setattr(worker,'call',lambda *a,**kw:'27.0')
     with pytest.raises(ValueError,match='hash mismatch'):
         worker.handle(dict(version='1',action='verify',url='https://github.com/u/r',commit='a'*40,edits=[],patch_hash='forged'))
+
+def test_local_runs_use_fresh_env_and_strip_host_secrets(tmp_path,monkeypatch):
+    spec=importlib.util.spec_from_file_location('vp_execute',ROOT/'worker/execute.py')
+    worker=importlib.util.module_from_spec(spec);spec.loader.exec_module(worker)
+    repo=tmp_path/'repo';repo.mkdir()
+    monkeypatch.setenv('PRIVATE_COORDINATOR_TOKEN','never-pass-to-target')
+    env_paths=[]
+    def fake(name,argv,cwd,env,timeout=180):
+        assert 'PRIVATE_COORDINATOR_TOKEN' not in env
+        if name=='create-env':env_paths.append(argv[-1])
+        if name=='tests':Path(env['VP_COUNTS']).write_text(json.dumps(dict(collected=1,passed=1,failed=0,skipped=0,errors=0)))
+        return dict(name=name,argv=argv,cwd=str(cwd),exit_code=0,stdout='unit-test fixture only',stderr='',duration_seconds=0,timed_out=False,logs_truncated=False)
+    monkeypatch.setattr(worker,'command',fake)
+    worker.execute(repo);worker.execute(repo)
+    assert len(set(env_paths))==2
+
+def test_execution_timeout_records_actual_failure(tmp_path):
+    spec=importlib.util.spec_from_file_location('vp_execute_timeout',ROOT/'worker/execute.py')
+    worker=importlib.util.module_from_spec(spec);spec.loader.exec_module(worker)
+    home=tmp_path/'home';home.mkdir()
+    result=worker.command('deadline',[__import__('sys').executable,'-c','import time; time.sleep(5)'],tmp_path,dict(HOME=str(home),PATH='/usr/bin:/bin'),timeout=.05)
+    assert result['timed_out'] and result['exit_code']==124
