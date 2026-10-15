@@ -1,3 +1,21 @@
+# Final validation · 15 October 2026
+
+Actual target commit `f52f3930c8e7c33d934ccf614955a38e26984bd5`; approved run `6ff0dd70641c4f0abc837206baba5ff4`.
+
+**Comparable v2 profile:** baseline 10 collected / 9 passed / 1 failed / 0 skipped; patched **10 collected / 10 passed / 0 failed / 0 skipped**. All 12 patched commands pass, including dependency-check, retained Nose compatibility check, actual migrated Makefile workflow and explicit original report test. Five original test files retain identical SHA256 hashes. Additional Pydantic behavior validation passes on both sides.
+
+**Application:** 60 tests pass, one Starlette/httpx deprecation warning; frontend production build passes. Guard coverage includes exact Makefile recipe migration with unchanged test scope and other targets.
+
+**AI/agent:** fresh direct-Qwen analysis completed four batches; bounded diagnostic review recorded and incorrect suggestions rejected. A fresh bounded actual Hermes inspection executed a real file-read tool and received its contents/hash. Final edits are maintainer-assisted, separately attributed from historical direct-Qwen Pydantic edits. Hermes repair generation is disabled.
+
+**Inventory:** 19 evidence-backed observations: 12 fixed, seven need review with specific next actions. URL authority validation is security scope outside scored maintenance. No exhaustive discovery/fix claim.
+
+Fresh reusable capsule: `artifacts/dependency-exit-capsule.zip`. Exact complete results: `docs/evidence/final-validation.json`. Demo: `docs/HERMES_DEMO.md`.
+
+---
+
+## Historical validation (retained; superseded by final v2 results)
+
 # Current validation · 2026-10-15
 
 Final architecture: direct-Qwen guarded repair proposals and human-approved LOCAL verification; actual Hermes inspection/baseline tools retained separately. Hermes patch generation is disabled. Historical evidence is not new inference.

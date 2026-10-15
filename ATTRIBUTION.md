@@ -9,3 +9,9 @@ Qwen3.5-4B, Qwen team, Apache-2.0: https://huggingface.co/Qwen/Qwen3.5-4B . Loca
 ## Final architecture and approved replay
 
 Hermes is inspection/baseline only; autonomous patch generation is disabled. The approved Pydantic repair `Q-d3c6699c60` is an exact recovery of direct Ollama Qwen2.5-Coder 7B proposal `P-d3c6699c60` from local run `5f2114e6a2054299b50f3f8aaad0d4ab`. It is not Hermes-authored or a new inference. VeriPatch validated its target SHA, exact diff and preflight, recorded user approval, and ran fresh LOCAL verification. Historical model claims remain labeled hypotheses; the original “latest version” assertion is not adopted as fact.
+
+## Final functional repairs and review
+
+Final proposal M-final-maintenance is maintainer-assisted: actual traceback diagnosis, official Jinja and Pydantic migration documentation, guarded exact edits, human approval and fresh v2 execution. A real fresh Qwen diagnosis and four-batch analysis are retained; incorrect suggestions were rejected rather than fabricated as successful AI output. Fresh actual Hermes inspection is explicitly timestamped separately from historical failure evidence.
+
+Official compatibility sources: https://jinja.palletsprojects.com/en/stable/changes/ and https://pydantic.dev/docs/validation/latest/get-started/migration/ .

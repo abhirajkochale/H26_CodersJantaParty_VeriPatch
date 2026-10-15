@@ -32,6 +32,7 @@ def export(run, destination):
         for c in result.get('commands',[]): report.append(f"| {c['name']} | {c.get('exit_code','unknown')} | {c.get('duration_seconds','unknown')} | {c.get('timed_out','unknown')} |")
     report += ['\n## Authorship and retained evidence', 'Repair engine: '+str(clean.get('repair_engine',clean.get('engine','DIRECT'))), 'Inspection engine: '+str(clean.get('inspection_engine','static inventory')), 'Hermes records retain their original timestamps. Historical Qwen responses are not new inference.', json.dumps([{k:p.get(k) for k in ['id','authored_by','status','provenance']} for p in clean.get('proposals',[])],indent=2)]
     report += ['\n## Retained Hermes activity (original timestamps)',json.dumps(clean.get('hermes',{}).get('identity',{}),indent=2), '\n## Remaining limitations',json.dumps(clean.get('limitations',[]),indent=2)]
+    report += ['\n## Additional behavior validation',json.dumps(clean.get('additional_validation',{}),indent=2)]
     applied=clean.get('applied_proposal_id','PROPOSAL_ID')
     reproduction = f'''# Reproduce
 Exact public source: {clean['url']}
@@ -72,6 +73,9 @@ The capsule records observations, AI hypotheses, and executed results separately
         z.writestr('REPORT.md','\n\n'.join(report))
         z.writestr('REPRODUCE.md',reproduction)
         z.writestr('hermes/activity.json',json.dumps(clean.get('hermes',{}),indent=2))
+        z.writestr('verification/additional-validation.json',json.dumps(clean.get('additional_validation',{}),indent=2))
+        z.writestr('ai/diagnostic-review.json',json.dumps(clean.get('qwen_diagnostic_review',{}),indent=2))
+        z.writestr('hermes/fresh-inspection.json',json.dumps(clean.get('hermes',{}).get('fresh_inspection',{}),indent=2))
         z.writestr('hermes/approvals.json',json.dumps(clean.get('approvals',[]),indent=2))
         z.writestr('verification/attempts.json',json.dumps(clean.get('verification_attempts',[]),indent=2))
         if clean.get('applied_diff'):z.writestr('patches/'+applied+'.diff',clean['applied_diff'])

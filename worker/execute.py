@@ -96,8 +96,16 @@ def pytest_sessionfinish(session, exitstatus):
     env['VP_COUNTS'] = str(work/'counts.json')
     run('collect-tests',[python,'-m','pytest','--collect-only','-q','-p','vp_probe'],120)
     run('tests',[python,'-m','pytest','-q','-ra','-p','vp_probe'],120)
+    # Additional fixed checks run on BOTH baseline and patched sources (profile v2).
+    # The legacy target remains an actual command: it must run, not be silently removed.
+    makefile=root/'Makefile'
+    if makefile.is_file() and re.search(r'^test-nose\s*:',makefile.read_text(),re.M):
+        env['PATH']=str(venv/'bin')+os.pathsep+env['PATH']
+        run('declared-test-workflow',['make','test-nose','PYTHON='+python],120)
+    reports=sorted(str(p.relative_to(root)) for p in (root/'tests').glob('test_*report*.py')) if (root/'tests').is_dir() else []
+    if reports:run('report-tests',[python,'-m','pytest','-q',*reports],120)
     counts = json.loads(Path(env['VP_COUNTS']).read_text()) if Path(env['VP_COUNTS']).exists() else None
-    return dict(worker_version=VERSION, profile='python312-requirements-project-nodeps-pytest-v1', runtime=sys.version,
+    return dict(worker_version=VERSION, profile='python312-requirements-project-nodeps-pytest-v2', runtime=sys.version,
                 commands=commands, counts=counts, success=all(x['exit_code']==0 for x in commands),
                 limitations=['One combined requirements environment; project installed without dependency resolution; pip check records metadata mismatch.',
                              'No application-specific network/service integration beyond existing tests.', 'Target code and test output are untrusted. Logs redacted and capped at 2 MB per stream.'])

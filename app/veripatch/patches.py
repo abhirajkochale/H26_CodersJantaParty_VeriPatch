@@ -18,7 +18,7 @@ def validate_edits(root, edits):
         p = PurePosixPath(path)
         if not path or p.is_absolute() or '..' in p.parts or '\\' in path or any(x.startswith('.') for x in p.parts):
             raise ValueError('Unsafe patch path: '+path)
-        if not safe_file(path) or p.suffix not in ALLOWED or any('test' in x.lower() for x in p.parts):
+        if not safe_file(path) or (p.suffix not in ALLOWED and p.name not in {'Makefile','README.md'}) or any('test' in x.lower() for x in p.parts):
             raise ValueError('Protected or unsupported file: '+path)
         target = root / path
         if any(x.is_symlink() for x in [target, *target.parents]) or not target.resolve().is_relative_to(root):
@@ -29,6 +29,19 @@ def validate_edits(root, edits):
         if not before or before == after or text.count(before) != 1:
             raise ValueError('Patch conflict: before must match exactly once in '+path)
         updated = text.replace(before, after, 1)
+        if p.name=='Makefile':
+            # Permit only a literal Nose -> pytest recipe migration, retaining scope/options.
+            old_lines=text.splitlines();new_lines=updated.splitlines()
+            if len(old_lines)!=len(new_lines):raise ValueError('Makefile migration must preserve every line/target')
+            changes=0
+            for old,new in zip(old_lines,new_lines):
+                if old==new:continue
+                if not old.startswith('\tnosetests '):raise ValueError('Only an existing Nose recipe may change')
+                args=old[len('\tnosetests '):]
+                if new!='\t$(PYTHON) -m pytest '+args:raise ValueError('Migration must preserve the exact original test scope/options')
+                if any(x in args for x in [';', '&', '|', '$', '`', '>', '<']):raise ValueError('Unsafe recipe arguments')
+                changes+=1
+            if not changes:raise ValueError('No runner migration')
         if p.suffix == '.py':
             try: ast.parse(updated)
             except SyntaxError as e: raise ValueError('Patch produces invalid Python: '+str(e)) from e

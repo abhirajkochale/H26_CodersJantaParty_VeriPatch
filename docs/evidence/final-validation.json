@@ -1,0 +1,817 @@
+{
+  "id": "6ff0dd70641c4f0abc837206baba5ff4",
+  "url": "https://github.com/rishrek/LinkWatch",
+  "commit": "f52f3930c8e7c33d934ccf614955a38e26984bd5",
+  "repair_engine": "MAINTAINER_ASSISTED_WITH_QWEN_REVIEW",
+  "baseline_profile_note": "Fresh profile v2 baseline; old v1 results are preserved in historical runs/capsules.",
+  "comparison": {
+    "checks_passed": true,
+    "reasons": [],
+    "before_counts": {
+      "collected": 10,
+      "passed": 9,
+      "failed": 1,
+      "skipped": 0,
+      "errors": 0
+    },
+    "after_counts": {
+      "collected": 10,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "errors": 0
+    },
+    "scope": {
+      "before": [
+        "create-env",
+        "tooling",
+        "install-requirements",
+        "install-project",
+        "dependency-check",
+        "resolved-packages",
+        "compile",
+        "nose-compatibility",
+        "collect-tests",
+        "tests",
+        "declared-test-workflow",
+        "report-tests"
+      ],
+      "after": [
+        "create-env",
+        "tooling",
+        "install-requirements",
+        "install-project",
+        "dependency-check",
+        "resolved-packages",
+        "compile",
+        "nose-compatibility",
+        "collect-tests",
+        "tests",
+        "declared-test-workflow",
+        "report-tests"
+      ]
+    },
+    "claim": "Passing checks support only the executed profile; individual issues still require reinspection/review."
+  },
+  "test_preservation": {
+    "original_tests_unchanged": true,
+    "protected_files": 5,
+    "baseline_sha256": {
+      "tests/conftest.py": "894d59ff9df4be0da679bbd4efe47637e2c3f8654da1cc1b4ad4867855d3b05c",
+      "tests/test_report.py": "053f4f610e5a33bfdbda20508d57d4bcb79e8de155b0e82f749d1594e4b60c67",
+      "tests/test_config.py": "beb2872ad59af263a852cdd7971ac9415d6819bf24ade83452c3e1b61063d1cf",
+      "tests/test_checker.py": "13e2ff260d47ef104c85937d188ce7874e4bf71c22dc65ad6358f9ea39774ef2",
+      "tests/test_cache.py": "1d3a550344a758e0090624f92e2f3bd3e4716b282728824e01e9a4688101e527"
+    },
+    "patched_sha256": {
+      "tests/conftest.py": "894d59ff9df4be0da679bbd4efe47637e2c3f8654da1cc1b4ad4867855d3b05c",
+      "tests/test_report.py": "053f4f610e5a33bfdbda20508d57d4bcb79e8de155b0e82f749d1594e4b60c67",
+      "tests/test_config.py": "beb2872ad59af263a852cdd7971ac9415d6819bf24ade83452c3e1b61063d1cf",
+      "tests/test_checker.py": "13e2ff260d47ef104c85937d188ce7874e4bf71c22dc65ad6358f9ea39774ef2",
+      "tests/test_cache.py": "1d3a550344a758e0090624f92e2f3bd3e4716b282728824e01e9a4688101e527"
+    }
+  },
+  "additional_validation": {
+    "baseline": {
+      "name": "pydantic-contract",
+      "argv": [
+        "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/execution-8585640900704d7b8cb4d0106367f6ff/target-env/bin/python",
+        "-c",
+        "from pydantic import ValidationError\nfrom linkwatch.config import Site, Settings\nassert Site(name=\" A \",url=\" https://example.org \").name == \"A\"\nassert Site(name=\" A \",url=\" https://example.org \").url == \"https://example.org\"\nfor construct in (lambda: Site(name=\"\",url=\"https://example.org\"),lambda: Site(name=\"A\",url=\"ftp://example.org\"),lambda: Settings(unexpected=True)):\n    try: construct()\n    except ValidationError: pass\n    else: raise AssertionError(\"validation behavior was lost\")\nprint(\"whitespace stripping, nonempty name, HTTP scheme and extra-field validation verified\")\n"
+      ],
+      "cwd": "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/baseline-repo",
+      "exit_code": 0,
+      "stdout": "whitespace stripping, nonempty name, HTTP scheme and extra-field validation verified\n",
+      "stderr": ""
+    },
+    "verification": {
+      "name": "pydantic-contract",
+      "argv": [
+        "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/execution-70592374f2a646b097f984804b12653d/target-env/bin/python",
+        "-c",
+        "from pydantic import ValidationError\nfrom linkwatch.config import Site, Settings\nassert Site(name=\" A \",url=\" https://example.org \").name == \"A\"\nassert Site(name=\" A \",url=\" https://example.org \").url == \"https://example.org\"\nfor construct in (lambda: Site(name=\"\",url=\"https://example.org\"),lambda: Site(name=\"A\",url=\"ftp://example.org\"),lambda: Settings(unexpected=True)):\n    try: construct()\n    except ValidationError: pass\n    else: raise AssertionError(\"validation behavior was lost\")\nprint(\"whitespace stripping, nonempty name, HTTP scheme and extra-field validation verified\")\n"
+      ],
+      "cwd": "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/patched-81b97d39",
+      "exit_code": 0,
+      "stdout": "whitespace stripping, nonempty name, HTTP scheme and extra-field validation verified\n",
+      "stderr": ""
+    }
+  },
+  "limitations": [
+    "All original 10 tests, actual pytest replacement invocation and explicit report test pass in comparable v2 profiles. This is not exhaustive bug discovery.",
+    "Seven unchanged source observations need review with specific next actions; URL authority validation is outside scored maintenance scope.",
+    "The actual fresh Qwen diagnostic response contained incorrect report/Pydantic advice; it is retained with maintainer assessment, not attributed as a correct autonomous repair. Approved final edits are maintainer-assisted, preserving the historical direct-Qwen Pydantic repair.",
+    "Hermes autonomous patch generation is disabled; actual historical and fresh inspection tool events are distinguished by phase/timestamp.",
+    "LOCAL executes trusted target code in disposable venvs, not a security sandbox. DigitalOcean optional and unverified.",
+    "Dependencies are not transitively locked; exact resolved package versions, commands, source hashes and replay patch are retained."
+  ],
+  "active_approval": {
+    "at": "2026-10-15T10:37:35.317464+00:00",
+    "proposal_id": "M-final-maintenance",
+    "diff_sha256": "efc4d32b36dc0f1c43a0483720b0f04221044dbda43c8eaee4cb7788779e1697",
+    "source": "Explicit human API/CLI approval"
+  },
+  "command_exits": {
+    "baseline": {
+      "create-env": 0,
+      "tooling": 0,
+      "install-requirements": 0,
+      "install-project": 0,
+      "dependency-check": 1,
+      "resolved-packages": 0,
+      "compile": 0,
+      "nose-compatibility": 1,
+      "collect-tests": 0,
+      "tests": 1,
+      "declared-test-workflow": 2,
+      "report-tests": 1
+    },
+    "verification": {
+      "create-env": 0,
+      "tooling": 0,
+      "install-requirements": 0,
+      "install-project": 0,
+      "dependency-check": 0,
+      "resolved-packages": 0,
+      "compile": 0,
+      "nose-compatibility": 0,
+      "collect-tests": 0,
+      "tests": 0,
+      "declared-test-workflow": 0,
+      "report-tests": 0
+    }
+  },
+  "findings": [
+    {
+      "id": "F-7904ab7fa1",
+      "rule": "http-timeout",
+      "title": "HTTP call has no explicit timeout",
+      "dependency": "requests",
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "needs_review",
+      "detail": "This call has no timeout keyword. Indirect wrappers/defaults require review.",
+      "evidence": [
+        {
+          "id": "E-7904ab7fa1",
+          "path": "linkwatch/checker.py",
+          "line": 15,
+          "snippet": "session.get(url, verify=certifi.where())",
+          "kind": "source_observed"
+        }
+      ],
+      "next_action": "Inspect wrapper defaults and add bounded-request regression coverage before changing timeout behavior.",
+      "verification_support": {
+        "profile_passed": true,
+        "claim": "Passing checks do not establish that this unchanged observation is fixed."
+      },
+      "scope": "maintenance"
+    },
+    {
+      "id": "F-7cf6ec114e",
+      "rule": "pydantic-legacy-api",
+      "title": "Pydantic v1-style validator",
+      "dependency": "pydantic",
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "fixed",
+      "detail": "Legacy validators need review if the effective environment selects Pydantic v2.",
+      "evidence": [
+        {
+          "id": "E-7cf6ec114e",
+          "path": "linkwatch/config.py",
+          "line": 14,
+          "snippet": "validator(\"name\")",
+          "kind": "source_observed"
+        }
+      ],
+      "verification_support": {
+        "profile_passed": true,
+        "static_observation_absent": true,
+        "commands": [
+          "create-env",
+          "tooling",
+          "install-requirements",
+          "install-project",
+          "dependency-check",
+          "resolved-packages",
+          "compile",
+          "nose-compatibility",
+          "collect-tests",
+          "tests",
+          "declared-test-workflow",
+          "report-tests"
+        ],
+        "pydantic_contract_exit": 0
+      },
+      "next_action": "No further action for this observed failure; retain regression evidence.",
+      "scope": "maintenance"
+    },
+    {
+      "id": "F-ace747ac1c",
+      "rule": "pydantic-legacy-api",
+      "title": "Pydantic v1-style validator",
+      "dependency": "pydantic",
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "fixed",
+      "detail": "Legacy validators need review if the effective environment selects Pydantic v2.",
+      "evidence": [
+        {
+          "id": "E-ace747ac1c",
+          "path": "linkwatch/config.py",
+          "line": 20,
+          "snippet": "validator(\"url\")",
+          "kind": "source_observed"
+        }
+      ],
+      "verification_support": {
+        "profile_passed": true,
+        "static_observation_absent": true,
+        "commands": [
+          "create-env",
+          "tooling",
+          "install-requirements",
+          "install-project",
+          "dependency-check",
+          "resolved-packages",
+          "compile",
+          "nose-compatibility",
+          "collect-tests",
+          "tests",
+          "declared-test-workflow",
+          "report-tests"
+        ],
+        "pydantic_contract_exit": 0
+      },
+      "next_action": "No further action for this observed failure; retain regression evidence.",
+      "scope": "maintenance"
+    },
+    {
+      "id": "F-e045e6163c",
+      "rule": "url-prefix-validation",
+      "title": "URL validation checks only a prefix",
+      "dependency": null,
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "needs_review",
+      "detail": "A scheme prefix does not establish a valid host or authority; inspect URL parsing requirements.",
+      "evidence": [
+        {
+          "id": "E-e045e6163c",
+          "path": "linkwatch/config.py",
+          "line": 22,
+          "snippet": "value.startswith((\"http://\", \"https://\"))",
+          "kind": "source_observed"
+        }
+      ],
+      "next_action": "Security scope excluded from scoring; review authority/host validation separately.",
+      "verification_support": {
+        "profile_passed": true,
+        "claim": "Passing checks do not establish that this unchanged observation is fixed."
+      },
+      "scope": "security_outside_scored_maintenance"
+    },
+    {
+      "id": "F-e38ea6df59",
+      "rule": "private-api",
+      "title": "Private API import",
+      "dependency": "requests",
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "needs_review",
+      "detail": "Private symbols are outside the public compatibility contract; verify against the selected version.",
+      "evidence": [
+        {
+          "id": "E-e38ea6df59",
+          "path": "linkwatch/encoding.py",
+          "line": 5,
+          "snippet": "from requests.utils import _parse_content_type_header",
+          "kind": "source_observed"
+        }
+      ],
+      "next_action": "Replace private content-type parsing only after testing current Requests behavior and equivalent encoding cases.",
+      "verification_support": {
+        "profile_passed": true,
+        "claim": "Passing checks do not establish that this unchanged observation is fixed."
+      },
+      "scope": "maintenance"
+    },
+    {
+      "id": "F-777c4b0bdd",
+      "rule": "dynamic-charset",
+      "title": "Dynamic codec lookup can fail",
+      "dependency": null,
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "needs_review",
+      "detail": "Untrusted or detected encoding can cause LookupError. Inspect fallback handling and regression coverage.",
+      "evidence": [
+        {
+          "id": "E-777c4b0bdd",
+          "path": "linkwatch/encoding.py",
+          "line": 22,
+          "snippet": "resp.content.decode(detect_encoding(resp), errors=\"replace\")",
+          "kind": "source_observed"
+        }
+      ],
+      "next_action": "Add unknown/invalid codec coverage and design a public fallback without hiding decoding errors.",
+      "verification_support": {
+        "profile_passed": true,
+        "claim": "Passing checks do not establish that this unchanged observation is fixed."
+      },
+      "scope": "maintenance"
+    },
+    {
+      "id": "F-1e538d2d13",
+      "rule": "global-monkey-patch",
+      "title": "Global HTTP behavior is replaced",
+      "dependency": "requests",
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "needs_review",
+      "detail": "Process-wide assignment changes Requests behavior for other callers; review scope and ordering.",
+      "evidence": [
+        {
+          "id": "E-1e538d2d13",
+          "path": "linkwatch/http_patch.py",
+          "line": 14,
+          "snippet": "requests.Session.request = _request",
+          "kind": "source_observed"
+        }
+      ],
+      "next_action": "Review process-wide Requests mutation and replace it with scoped sessions after behavior coverage.",
+      "verification_support": {
+        "profile_passed": true,
+        "claim": "Passing checks do not establish that this unchanged observation is fixed."
+      },
+      "scope": "maintenance"
+    },
+    {
+      "id": "F-4af2e3a3cd",
+      "rule": "deprecated-module",
+      "title": "Deprecated or removed module",
+      "dependency": "setuptools",
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "needs_review",
+      "detail": "Module has a deprecated or removed standard/distribution API; baseline execution establishes runtime impact.",
+      "evidence": [
+        {
+          "id": "E-4af2e3a3cd",
+          "path": "linkwatch/resources.py",
+          "line": 1,
+          "snippet": "import pkg_resources",
+          "kind": "source_observed"
+        }
+      ],
+      "next_action": "Migrate resource loading to a public API and verify packaged templates in an installed wheel.",
+      "verification_support": {
+        "profile_passed": true,
+        "claim": "Passing checks do not establish that this unchanged observation is fixed."
+      },
+      "scope": "maintenance"
+    },
+    {
+      "id": "F-3301259884",
+      "rule": "undeclared-import",
+      "title": "Direct import has no matching declaration",
+      "dependency": "certifi",
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "needs_review",
+      "detail": "Static module-to-distribution mapping is heuristic; transitive availability is not a direct declaration.",
+      "evidence": [
+        {
+          "id": "E-3301259884",
+          "path": "linkwatch/checker.py",
+          "line": 4,
+          "snippet": "certifi",
+          "kind": "source_observed"
+        }
+      ],
+      "next_action": "Review direct certifi declaration; current availability is transitive through Requests.",
+      "verification_support": {
+        "profile_passed": true,
+        "claim": "Passing checks do not establish that this unchanged observation is fixed."
+      },
+      "scope": "maintenance"
+    },
+    {
+      "id": "F-d74ef719bc",
+      "rule": "legacy-test-runner",
+      "title": "Legacy test infrastructure needs Python 3.12 validation",
+      "dependency": "nose",
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "fixed",
+      "detail": "Nose uses legacy import machinery in known releases; verify the installed runner on the actual Python version.",
+      "evidence": [
+        {
+          "id": "E-d74ef719bc",
+          "path": "requirements-dev.txt",
+          "line": 1,
+          "snippet": "nose==1.3.7",
+          "kind": "source_observed"
+        }
+      ],
+      "verification_support": {
+        "profile_passed": true,
+        "static_observation_absent": true,
+        "commands": [
+          "create-env",
+          "tooling",
+          "install-requirements",
+          "install-project",
+          "dependency-check",
+          "resolved-packages",
+          "compile",
+          "nose-compatibility",
+          "collect-tests",
+          "tests",
+          "declared-test-workflow",
+          "report-tests"
+        ],
+        "pydantic_contract_exit": 0
+      },
+      "next_action": "No further action for this observed failure; retain regression evidence.",
+      "scope": "maintenance"
+    },
+    {
+      "id": "F-dbaf11bb4c",
+      "rule": "dependency-conflict",
+      "title": "Conflicting declarations: pydantic",
+      "dependency": "pydantic",
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "fixed",
+      "detail": "No version can satisfy these unconditional runtime constraints: >=2, ==1.10.13",
+      "evidence": [
+        {
+          "id": "E-dbaf11bb4c",
+          "path": "pyproject.toml",
+          "line": 17,
+          "snippet": "pydantic>=2",
+          "kind": "source_observed"
+        }
+      ],
+      "verification_support": {
+        "profile_passed": true,
+        "static_observation_absent": true,
+        "commands": [
+          "create-env",
+          "tooling",
+          "install-requirements",
+          "install-project",
+          "dependency-check",
+          "resolved-packages",
+          "compile",
+          "nose-compatibility",
+          "collect-tests",
+          "tests",
+          "declared-test-workflow",
+          "report-tests"
+        ],
+        "pydantic_contract_exit": 0
+      },
+      "next_action": "No further action for this observed failure; retain regression evidence.",
+      "scope": "maintenance"
+    },
+    {
+      "id": "F-94f7a6789f",
+      "rule": "dependency-conflict",
+      "title": "Conflicting declarations: pydantic",
+      "dependency": "pydantic",
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "fixed",
+      "detail": "No version can satisfy these unconditional runtime constraints: >=2, ==1.10.13",
+      "evidence": [
+        {
+          "id": "E-94f7a6789f",
+          "path": "requirements.txt",
+          "line": 5,
+          "snippet": "pydantic==1.10.13",
+          "kind": "source_observed"
+        }
+      ],
+      "verification_support": {
+        "profile_passed": true,
+        "static_observation_absent": true,
+        "commands": [
+          "create-env",
+          "tooling",
+          "install-requirements",
+          "install-project",
+          "dependency-check",
+          "resolved-packages",
+          "compile",
+          "nose-compatibility",
+          "collect-tests",
+          "tests",
+          "declared-test-workflow",
+          "report-tests"
+        ],
+        "pydantic_contract_exit": 0
+      },
+      "next_action": "No further action for this observed failure; retain regression evidence.",
+      "scope": "maintenance"
+    },
+    {
+      "id": "X-4",
+      "rule": "execution-failure",
+      "title": "dependency-check failed",
+      "dependency": null,
+      "severity": "high",
+      "evidence_status": "execution_verified",
+      "repair_status": "fixed",
+      "detail": "Actual command exited 1",
+      "evidence": [
+        {
+          "id": "E-X-4",
+          "kind": "execution_verified",
+          "command": [
+            "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/execution-95ad59835d54429bae487387bcbf68ba/target-env/bin/python",
+            "-m",
+            "pip",
+            "check"
+          ],
+          "cwd": "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/baseline-repo",
+          "provider": "LOCAL",
+          "path": null,
+          "line": null,
+          "snippet": "linkwatch 0.3.1 has requirement pydantic>=2, but you have pydantic 1.10.13.\n"
+        }
+      ],
+      "verification_support": {
+        "profile_passed": true,
+        "static_observation_absent": true,
+        "commands": [
+          "create-env",
+          "tooling",
+          "install-requirements",
+          "install-project",
+          "dependency-check",
+          "resolved-packages",
+          "compile",
+          "nose-compatibility",
+          "collect-tests",
+          "tests",
+          "declared-test-workflow",
+          "report-tests"
+        ],
+        "pydantic_contract_exit": 0
+      },
+      "next_action": "No further action for this observed failure; retain regression evidence.",
+      "scope": "maintenance"
+    },
+    {
+      "id": "X-7",
+      "rule": "execution-failure",
+      "title": "nose-compatibility failed",
+      "dependency": null,
+      "severity": "high",
+      "evidence_status": "execution_verified",
+      "repair_status": "fixed",
+      "detail": "Actual command exited 1",
+      "evidence": [
+        {
+          "id": "E-X-7",
+          "kind": "execution_verified",
+          "command": [
+            "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/execution-95ad59835d54429bae487387bcbf68ba/target-env/bin/python",
+            "-c",
+            "import importlib.util; spec=importlib.util.find_spec('nose'); print('nose absent: no installed legacy runner' if spec is None else 'nose installed: importing for compatibility'); exec('import nose; print(nose.__version__)') if spec else None"
+          ],
+          "cwd": "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/baseline-repo",
+          "provider": "LOCAL",
+          "path": null,
+          "line": null,
+          "snippet": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"<string>\", line 1, in <module>\n  File \"/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/execution-95ad59835d54429bae487387bcbf68ba/target-env/lib/python3.12/site-packages/nose/__init__.py\", line 1, in <module>\n    from nose.core import collector, main, run, run_exit, runmodule\n  File \"/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/execution-95ad59835d54429bae487387bcbf68ba/target-env/lib/python3.12/site-packages/nose/core.py\", line 12, in <module>\n    from nose.loader import defaultTestLoader\n  File \"/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/execution-95ad59835d54429bae487387bcbf68ba/target-env/lib/python3.12/site-packages/nose/loader.py\", line 21, in <module>\n    from nose.importer import Importer, add_path, remove_path\n  File \"/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/execution-95ad59835d54429bae487387bcbf68ba/target-env/lib/python3.12/site-packages/nose/importer.py\", line 12, in <module>\n    from imp import find_module, load_module, acquire_lock, release_lock\nModuleNotFoundError: No module named 'imp'\n"
+        }
+      ],
+      "verification_support": {
+        "profile_passed": true,
+        "static_observation_absent": true,
+        "commands": [
+          "create-env",
+          "tooling",
+          "install-requirements",
+          "install-project",
+          "dependency-check",
+          "resolved-packages",
+          "compile",
+          "nose-compatibility",
+          "collect-tests",
+          "tests",
+          "declared-test-workflow",
+          "report-tests"
+        ],
+        "pydantic_contract_exit": 0
+      },
+      "next_action": "No further action for this observed failure; retain regression evidence.",
+      "scope": "maintenance"
+    },
+    {
+      "id": "X-9",
+      "rule": "execution-failure",
+      "title": "tests failed",
+      "dependency": null,
+      "severity": "high",
+      "evidence_status": "execution_verified",
+      "repair_status": "fixed",
+      "detail": "Actual command exited 1",
+      "evidence": [
+        {
+          "id": "E-X-9",
+          "kind": "execution_verified",
+          "command": [
+            "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/execution-95ad59835d54429bae487387bcbf68ba/target-env/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "-ra",
+            "-p",
+            "vp_probe"
+          ],
+          "cwd": "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/baseline-repo",
+          "provider": "LOCAL",
+          "path": null,
+          "line": null,
+          "snippet": "-env/lib/python3.12/site-packages/click/core.py:1415: in invoke\n    return ctx.invoke(self.callback, **ctx.params)\n../execution-95ad59835d54429bae487387bcbf68ba/target-env/lib/python3.12/site-packages/click/core.py:910: in invoke\n    return callback(*args, **kwargs)\nlinkwatch/cli.py:56: in report\n    from .report import render_report\nlinkwatch/report.py:3: in <module>\n    from jinja2 import Environment, FileSystemLoader, select_autoescape\n../execution-95ad59835d54429bae487387bcbf68ba/target-env/lib/python3.12/site-packages/jinja2/__init__.py:12: in <module>\n    from .environment import Environment\n../execution-95ad59835d54429bae487387bcbf68ba/target-env/lib/python3.12/site-packages/jinja2/environment.py:25: in <module>\n    from .defaults import BLOCK_END_STRING\n../execution-95ad59835d54429bae487387bcbf68ba/target-env/lib/python3.12/site-packages/jinja2/defaults.py:3: in <module>\n    from .filters import FILTERS as DEFAULT_FILTERS  # noqa: F401\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    # -*- coding: utf-8 -*-\n    \"\"\"Built-in template filters used with the ``|`` operator.\"\"\"\n    import math\n    import random\n    import re\n    import warnings\n    from collections import namedtuple\n    from itertools import chain\n    from itertools import groupby\n    \n    from markupsafe import escape\n    from markupsafe import Markup\n>   from markupsafe import soft_unicode\nE   ImportError: cannot import name 'soft_unicode' from 'markupsafe' (/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/execution-95ad59835d54429bae487387bcbf68ba/target-env/lib/python3.12/site-packages/markupsafe/__init__.py)\n\n../execution-95ad59835d54429bae487387bcbf68ba/target-env/lib/python3.12/site-packages/jinja2/filters.py:13: ImportError\n=============================== warnings summary ===============================\nlinkwatch/resources.py:1\n  /Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/baseline-repo/linkwatch/resources.py:1: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html\n    import pkg_resources\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/test_report.py::test_report_renders_all_sites - ImportError: can...\n1 failed, 9 passed, 1 warning in 6.55s\n"
+        }
+      ],
+      "verification_support": {
+        "profile_passed": true,
+        "static_observation_absent": true,
+        "commands": [
+          "create-env",
+          "tooling",
+          "install-requirements",
+          "install-project",
+          "dependency-check",
+          "resolved-packages",
+          "compile",
+          "nose-compatibility",
+          "collect-tests",
+          "tests",
+          "declared-test-workflow",
+          "report-tests"
+        ],
+        "pydantic_contract_exit": 0
+      },
+      "next_action": "No further action for this observed failure; retain regression evidence.",
+      "scope": "maintenance"
+    },
+    {
+      "id": "X-10",
+      "rule": "execution-failure",
+      "title": "declared-test-workflow failed",
+      "evidence_status": "execution_verified",
+      "repair_status": "fixed",
+      "dependency": null,
+      "severity": "high",
+      "detail": "Fresh profile v2 command exited 2",
+      "evidence": [
+        {
+          "id": "E-X-10",
+          "kind": "execution_verified",
+          "path": null,
+          "line": null,
+          "command": [
+            "make",
+            "test-nose",
+            "PYTHON=/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/execution-8585640900704d7b8cb4d0106367f6ff/target-env/bin/python"
+          ],
+          "cwd": "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/baseline-repo",
+          "provider": "LOCAL",
+          "snippet": "Traceback (most recent call last):\n  File \"/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/execution-8585640900704d7b8cb4d0106367f6ff/target-env/bin/nosetests\", line 5, in <module>\n    from nose import run_exit\n  File \"/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/execution-8585640900704d7b8cb4d0106367f6ff/target-env/lib/python3.12/site-packages/nose/__init__.py\", line 1, in <module>\n    from nose.core import collector, main, run, run_exit, runmodule\n  File \"/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/execution-8585640900704d7b8cb4d0106367f6ff/target-env/lib/python3.12/site-packages/nose/core.py\", line 12, in <module>\n    from nose.loader import defaultTestLoader\n  File \"/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/execution-8585640900704d7b8cb4d0106367f6ff/target-env/lib/python3.12/site-packages/nose/loader.py\", line 21, in <module>\n    from nose.importer import Importer, add_path, remove_path\n  File \"/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/execution-8585640900704d7b8cb4d0106367f6ff/target-env/lib/python3.12/site-packages/nose/importer.py\", line 12, in <module>\n    from imp import find_module, load_module, acquire_lock, release_lock\nModuleNotFoundError: No module named 'imp'\nmake: *** [test-nose] Error 1\n\nnosetests tests/\n"
+        }
+      ],
+      "verification_support": {
+        "profile_passed": true,
+        "static_observation_absent": true,
+        "commands": [
+          "create-env",
+          "tooling",
+          "install-requirements",
+          "install-project",
+          "dependency-check",
+          "resolved-packages",
+          "compile",
+          "nose-compatibility",
+          "collect-tests",
+          "tests",
+          "declared-test-workflow",
+          "report-tests"
+        ],
+        "pydantic_contract_exit": 0
+      },
+      "next_action": "No further action for this observed failure; retain regression evidence.",
+      "scope": "maintenance"
+    },
+    {
+      "id": "X-11",
+      "rule": "execution-failure",
+      "title": "report-tests failed",
+      "evidence_status": "execution_verified",
+      "repair_status": "fixed",
+      "dependency": null,
+      "severity": "high",
+      "detail": "Fresh profile v2 command exited 1",
+      "evidence": [
+        {
+          "id": "E-X-11",
+          "kind": "execution_verified",
+          "path": null,
+          "line": null,
+          "command": [
+            "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/execution-8585640900704d7b8cb4d0106367f6ff/target-env/bin/python",
+            "-m",
+            "pytest",
+            "-q",
+            "tests/test_report.py"
+          ],
+          "cwd": "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/baseline-repo",
+          "provider": "LOCAL",
+          "snippet": "6ff/target-env/lib/python3.12/site-packages/click/core.py:1415: in invoke\n    return ctx.invoke(self.callback, **ctx.params)\n../execution-8585640900704d7b8cb4d0106367f6ff/target-env/lib/python3.12/site-packages/click/core.py:910: in invoke\n    return callback(*args, **kwargs)\nlinkwatch/cli.py:56: in report\n    from .report import render_report\nlinkwatch/report.py:3: in <module>\n    from jinja2 import Environment, FileSystemLoader, select_autoescape\n../execution-8585640900704d7b8cb4d0106367f6ff/target-env/lib/python3.12/site-packages/jinja2/__init__.py:12: in <module>\n    from .environment import Environment\n../execution-8585640900704d7b8cb4d0106367f6ff/target-env/lib/python3.12/site-packages/jinja2/environment.py:25: in <module>\n    from .defaults import BLOCK_END_STRING\n../execution-8585640900704d7b8cb4d0106367f6ff/target-env/lib/python3.12/site-packages/jinja2/defaults.py:3: in <module>\n    from .filters import FILTERS as DEFAULT_FILTERS  # noqa: F401\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    # -*- coding: utf-8 -*-\n    \"\"\"Built-in template filters used with the ``|`` operator.\"\"\"\n    import math\n    import random\n    import re\n    import warnings\n    from collections import namedtuple\n    from itertools import chain\n    from itertools import groupby\n    \n    from markupsafe import escape\n    from markupsafe import Markup\n>   from markupsafe import soft_unicode\nE   ImportError: cannot import name 'soft_unicode' from 'markupsafe' (/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/execution-8585640900704d7b8cb4d0106367f6ff/target-env/lib/python3.12/site-packages/markupsafe/__init__.py)\n\n../execution-8585640900704d7b8cb4d0106367f6ff/target-env/lib/python3.12/site-packages/jinja2/filters.py:13: ImportError\n=============================== warnings summary ===============================\nlinkwatch/resources.py:1\n  /Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/6ff0dd70641c4f0abc837206baba5ff4/baseline-repo/linkwatch/resources.py:1: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html\n    import pkg_resources\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ============================\nFAILED tests/test_report.py::test_report_renders_all_sites - ImportError: can...\n1 failed, 1 warning in 0.07s\n"
+        }
+      ],
+      "verification_support": {
+        "profile_passed": true,
+        "static_observation_absent": true,
+        "commands": [
+          "create-env",
+          "tooling",
+          "install-requirements",
+          "install-project",
+          "dependency-check",
+          "resolved-packages",
+          "compile",
+          "nose-compatibility",
+          "collect-tests",
+          "tests",
+          "declared-test-workflow",
+          "report-tests"
+        ],
+        "pydantic_contract_exit": 0
+      },
+      "next_action": "No further action for this observed failure; retain regression evidence.",
+      "scope": "maintenance"
+    },
+    {
+      "id": "M-d61abac4fc",
+      "rule": "runner-invocation",
+      "title": "Legacy Nose invocation cannot run on Python 3.12.",
+      "dependency": "nose",
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "fixed",
+      "detail": "Legacy Nose invocation cannot run on Python 3.12.",
+      "evidence": [
+        {
+          "id": "E-M-d61abac4fc",
+          "path": "Makefile",
+          "line": 14,
+          "snippet": "nosetests tests/",
+          "kind": "source_observed",
+          "observer": "maintainer"
+        }
+      ],
+      "verification_support": {
+        "command": "declared-test-workflow",
+        "exit_code": 0,
+        "approved_patch_contains_path": true
+      },
+      "next_action": "Retain the explicit Makefile workflow check.",
+      "scope": "maintenance"
+    },
+    {
+      "id": "M-a1383eaedc",
+      "rule": "runner-documentation",
+      "title": "Target documentation must describe the migrated compatibility alias.",
+      "dependency": "nose",
+      "severity": "medium",
+      "evidence_status": "source_observed",
+      "repair_status": "fixed",
+      "detail": "Target documentation must describe the migrated compatibility alias.",
+      "evidence": [
+        {
+          "id": "E-M-a1383eaedc",
+          "path": "README.md",
+          "line": 214,
+          "snippet": "| `make test-nose` | Run the suite with nose |",
+          "kind": "source_observed",
+          "observer": "maintainer"
+        }
+      ],
+      "verification_support": {
+        "command": "declared-test-workflow",
+        "exit_code": 0,
+        "approved_patch_contains_path": true
+      },
+      "next_action": "Retain the explicit Makefile workflow check.",
+      "scope": "maintenance"
+    }
+  ]
+}

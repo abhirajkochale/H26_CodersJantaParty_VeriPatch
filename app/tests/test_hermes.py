@@ -75,3 +75,11 @@ def test_partial_dependency_success_does_not_hide_remaining_failures(boundary):
     assert all(f['repair_status']=='fixed' for f in run['findings'] if f['rule']=='dependency-conflict')
     assert next(f for f in run['findings'] if f['id']=='X-4')['repair_status']=='fixed'
     assert next(f for f in run['findings'] if f['id']=='X-7')['repair_status']=='unresolved'
+
+def test_makefile_migration_preserves_scope_and_other_targets(tmp_path):
+    from veripatch.patches import validate_edits
+    path=tmp_path/'Makefile';path.write_text('test-nose:\n\tnosetests tests/\nother:\n\techo keep\n')
+    edit=dict(path='Makefile',before='\tnosetests tests/',after='\t$(PYTHON) -m pytest tests/')
+    assert 'pytest tests/' in validate_edits(tmp_path,[edit])['Makefile']
+    with pytest.raises(ValueError,match='scope'):validate_edits(tmp_path,[{**edit,'after':'\t$(PYTHON) -m pytest subset/'}])
+    with pytest.raises(ValueError):validate_edits(tmp_path,[dict(path='Makefile',before='echo keep',after='echo changed')])

@@ -1,35 +1,45 @@
-# Working review → verify → export demo
+# Final demo and reproduction
 
-Run `8f5c766cc3e34bfeb359784bfe42d70b`, actual LinkWatch commit `f52f3930c8e7c33d934ccf614955a38e26984bd5`.
+Target https://github.com/rishrek/LinkWatch at `f52f3930c8e7c33d934ccf614955a38e26984bd5`. Demonstration run **6ff0dd70641c4f0abc837206baba5ff4**; approved proposal **M-final-maintenance**.
 
-## Short demo script
+## 90-second demo
 
-1. Start `PYTHONPATH=app app/.venv/bin/python -m veripatch serve`, then open http://127.0.0.1:8000. Select LinkWatch run **8f5c76** (created 15 October 2026 at 15:08 IST). Other retained runs include failures; do not confuse them with this approved replay.
-2. Open **Agent activity**. Show actual Hermes inventory/read/baseline tool calls, results and original timestamps. Explain that failed repair-generation history is retained and generation is now disabled; these are not new live executions.
-3. Open **AI & patches**. Show **Recovered direct-Qwen repair: align Pydantic constraints**, ID `Q-d3c6699c60`, its authorship and exact diff. Both manifests change to `pydantic>=2.4.2`.
-4. Explain that the user explicitly approved this diff. The **Approve patch & verify** button is the approval action for future pending proposals; this already-applied proposal is no longer pending. The backend records the approved diff hash and executes the fixed LOCAL runner in a separate clone.
-5. Open **Verification**. Baseline/patched collect the same 10 tests: 9 pass, 1 fails, 0 skip. `dependency-check` changes exit 1 → 0. Nose compatibility and the report test still fail. Show those actual logs. The full profile is not passing.
-6. Open **Findings**: the two Pydantic conflict observations and dependency-check failure are fixed with supporting evidence; other issues remain unresolved/need review. All five original test files have identical before/after SHA-256 hashes.
-7. Select **Export capsule**. Inspect `REPORT.md`, `REPRODUCE.md`, `capsule.json`, patch, original/patched logs, approval, Hermes activity and historical Qwen provenance.
+1. Start `PYTHONPATH=app app/.venv/bin/python -m veripatch serve`; open http://127.0.0.1:8000 and select **6ff0dd**.
+2. **AI & patches:** show maintainer-assisted authorship, exact reviewed diff and approval record. Explain that Qwen supplied a real diagnostic review, with incorrect advice rejected; the historical Pydantic repair is separately attributed to direct Qwen. The user approved runtime edits and the README correction before application.
+3. **Agent activity:** show `fresh_bounded_inspection`, the actual Hermes `repository_read` arguments, returned requirements contents/SHA256 and actual role=tool message in the capsule. Historical failed-generation activity retains original timestamps. No patch generation is enabled.
+4. **Verification:** show comparable v2 baseline vs patched: **9/10 → 10/10 passing, 0 skips**; pip check exit **1 → 0**, legacy Makefile workflow **2 → 0**, explicit report test **1 → 0**. All 12 commands now pass. Original five test files have identical hashes; separate Pydantic behavior checks pass on both sides.
+5. **Findings:** 12 observations fixed with support; seven unchanged observations need review and have specific next actions. Security scope is marked separately. This is not exhaustive bug discovery.
+6. **Export capsule:** open `REPORT.md`, `capsule.json`, `REPRODUCE.md`, approved diff, command logs, agent/model identities, approvals, fresh Qwen review and fresh Hermes tool evidence.
 
-Saved fresh capsule: `.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/dependency-exit-capsule.zip`.
-Detailed measured summary: `docs/evidence/direct-qwen-approved-replay.json`.
+Fresh capsule: [artifacts/dependency-exit-capsule.zip](../artifacts/dependency-exit-capsule.zip). Exact patch: [artifacts/target-maintenance.diff](../artifacts/target-maintenance.diff). Local run also retains `.veripatch/6ff0dd70641c4f0abc837206baba5ff4/dependency-exit-capsule.zip`.
 
-## Exact provenance
+## Exact measured results
 
-Hermes inspection: official unmodified `git.db44c46`, commit `db44c46208f1b421b4ecb7e56bf9d68b0423906f`, MIT. It actually selected tools and received repository contents and baseline results. Inspection model: local `veripatch-qwen3.5:4b-64k`, digest `806c7d026cf6f24e62ff603b194c8ed89c7a34491562d22c29d1ff549421498f`, actual served context 65,536.
+| v2 check | Baseline exit | Patched exit |
+|---|---:|---:|
+| create-env / tooling / installs | 0 | 0 |
+| dependency-check | 1 | 0 |
+| resolved-packages / compile | 0 | 0 |
+| nose-compatibility | 1 | 0 (Nose retired, check retained) |
+| collect-tests | 0 | 0 |
+| tests | 1 | 0 |
+| declared-test-workflow (`make test-nose`) | 2 | 0 |
+| report-tests (original test) | 1 | 0 |
 
-Repair authorship: historical **direct Ollama Qwen2.5-Coder 7B** proposal `P-d3c6699c60`, source run `5f2114e6a2054299b50f3f8aaad0d4ab`, response timestamp `2026-10-15T08:04:02.030463+00:00`. Its exact edits/diff match the current target commit and passed preflight before approval. Recovery is not new model inference. The model's old unverified “latest version” claim is retained in provenance but is not asserted as fact.
+Counts: baseline 10 collected / 9 passed / 1 failed / 0 skipped / 0 errors; patched 10 / 10 / 0 / 0 / 0. Earlier profile v1 evidence is preserved separately and is not compared to v2.
 
-The approved replay ran fresh LOCAL verification. It did not invoke Hermes or Qwen. Before/after command scope, collection and skip counts match. Capsule replay uses the exact recorded diff rather than expecting stochastic model output to repeat.
+The original report error was Jinja2 2.11.3 importing removed MarkupSafe `soft_unicode`; Nose imported removed Python `imp`. Both Jinja manifests were updated. Nose's actual Makefile invocation and README label were migrated, retaining original tests/ scope. Pydantic constraints remain aligned and public v2 APIs preserve the original validation contract.
 
-## Current limitations
+## Provenance and limitations
 
-- Hermes autonomous patch generation produced malformed/incorrect proposals and is disabled. Failure events remain intact, including exact argument/schema rejections in `docs/evidence/hermes-rejection-diagnosis.json`.
-- Nose 1.3.7 imports removed `imp`; Jinja2 2.11.3/MarkupSafe breaks report generation. The original failing test remains intact.
-- Other static findings include legacy Pydantic validators, private/deprecated APIs, dynamic codec handling, prefix-only URL validation, global HTTP monkey patching, missing timeout and an undeclared import. They are not claimed fixed by a dependency repair.
-- LOCAL venv execution trusts target code; it is not a security sandbox. Dependencies are not locked transitively; actual resolved versions are in the logs. DigitalOcean is optional and unverified.
+Fresh repository analysis run `bf4f9872dba642c193624286baa7b501` cloned the actual target, executed a baseline and completed four real direct-Qwen batches. This demonstrates the existing analysis/proposal path, not correctness of every recommendation. The bounded fresh Qwen diagnostic review is in `docs/evidence/final-qwen-diagnosis.json`; incorrect report attribution and downgrade advice were explicitly rejected.
 
-## Reproduction
+Fresh bounded actual Hermes inspection is in `docs/evidence/final-hermes-inspection.json`: official unmodified `git.db44c46`, MIT, local `veripatch-qwen3.5:4b-64k`. Actual tool execution, returned file content/hash and conversation tool messages are retained. Direct Qwen uses installed `qwen2.5-coder:7b`. No model changes/downloads occurred in finalization; only normal target dependency installation for verification.
 
-Unzip the capsule and follow `REPRODUCE.md` to clone the exact target commit, execute baseline, apply `patches/Q-d3c6699c60.diff`, and run the identical profile. Do not edit or suppress original tests. Use fresh destination directories.
+The final approved exact edits are maintainer-assisted. The Pydantic alignment originated in historical direct-Qwen proposal `P-d3c6699c60`, preserved with its original timestamp. No maintainer changes are attributed to Hermes or presented as autonomous AI output. Hermes autonomous patch generation remains disabled.
+
+Remaining observations: private/deprecated APIs, timeout defaults, charset handling, global Requests mutation, transitive-only certifi declaration and URL authority validation. LOCAL trusts target code; venvs are not security sandboxes. DigitalOcean is optional and unverified. See complete evidence/next actions in `docs/evidence/final-validation.json` and capsule.json.
+
+## Reproduce
+
+Unzip the capsule and follow `REPRODUCE.md`. Apply the approved diff only inside a fresh clone of the exact target commit. Use the current project's worker profile v2 on both baseline and patched copies. Preserve all original tests. Model outputs need not repeat; replay the recorded exact diff.
