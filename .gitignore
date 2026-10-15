@@ -7,3 +7,15 @@ dist/
 .venv/
 venv/
 status.html
+
+# VeriPatch application dependencies and private run artifacts
+app/.venv/
+frontend/node_modules/
+frontend/dist/
+.veripatch/
+.env
+__pycache__/
+.pytest_cache/
+*.pyc
+
+*.tsbuildinfo
