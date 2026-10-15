@@ -10,7 +10,7 @@ import uuid
 from . import ai
 from .execution import verify, compare, digitalocean
 from .inspection import inspect
-from .patches import validate_edits, diff_edits, apply_edits
+from .patches import validate_edits, diff_edits, apply_edits, preflight
 from .safety import repository_url
 from .store import Store
 
@@ -69,6 +69,7 @@ def execute_analysis(run, release):
                         supplied_paths = {item['path'] for item in result.get('source_context', [])}
                         if any(edit['path'] not in supplied_paths for edit in proposal['edits']):
                             raise ValueError('Patch references a file outside supplied relevant source context')
+                        proposal['preflight']=preflight(repo,proposal['edits'],run['findings'],proposal['issue_ids'])
                         proposal['diff']=diff_edits(repo,proposal['edits'])
                     except Exception as e: proposal.update(status='invalid',error=str(e),diff='')
                     run['proposals'].append(proposal)
@@ -158,7 +159,16 @@ def start_apply(id,proposal_id):
         if run['status']=='running': raise ValueError('Run is busy')
         proposal=next((p for p in run['proposals'] if p['id']==proposal_id),None)
         if not proposal or proposal['status']=='invalid': raise ValueError('No valid proposal')
-        validate_edits(store.directory(id)/'baseline-repo',proposal['edits'])
+        try:
+            proposal['preflight']=preflight(store.directory(id)/'baseline-repo',proposal['edits'],run['findings'],proposal['issue_ids'])
+        except ValueError as e:
+            proposal.update(status='invalid',error=str(e))
+            for f in run['findings']:
+                if f['id'] in proposal['issue_ids']:
+                    f['repair_status']='proposed' if any(f['id'] in p['issue_ids'] and p['status']=='proposed' for p in run['proposals']) else ('needs_review' if f.get('verification_support',{}).get('static_observation_absent') else 'unresolved')
+            run['errors'].append('Rejected proposal '+proposal['id']+': '+str(e))
+            store.save(run)
+            raise
         run['status']='running'
         for field in ['verification','comparison','reinspection','applied_proposal_id','applied_edits']: run.pop(field,None)
         store.save(run); pool.submit(execute_apply,run,proposal,release)
@@ -182,6 +192,7 @@ def execute_plan(run, release):
             proposal = dict(proposed,id='P-'+uuid.uuid4().hex[:10],status='proposed',evidence_status='ai_hypothesis',integrated=True)
             try:
                 if any(edit['path'] not in supplied_paths for edit in proposal['edits']): raise ValueError('Patch is outside supplied relevant source context')
+                proposal['preflight'] = preflight(repo,proposal['edits'],run['findings'],proposal['issue_ids'])
                 proposal['diff'] = diff_edits(repo,proposal['edits'])
             except Exception as e: proposal.update(status='invalid',error=str(e),diff='')
             run['proposals'].append(proposal)

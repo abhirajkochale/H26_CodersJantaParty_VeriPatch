@@ -139,3 +139,19 @@ def test_atomic_store_lock(tmp_path):
     with pytest.raises(RuntimeError):other.reserve()
     release();other.reserve()()
     with pytest.raises(ValueError):store.get('../escape')
+
+def test_bounded_context_preserves_middle_exception():
+    text=('setup details\n'*100)+"E   ImportError: missing_public_symbol from dependency\n"+('warnings\n'*100)
+    excerpt=ai.diagnostic_excerpt(text,150)
+    assert 'ImportError: missing_public_symbol' in excerpt and len(excerpt)<=150
+
+def test_preflight_rejects_swapped_conflicts_and_accepts_alignment(tmp_path):
+    from veripatch.patches import preflight
+    (tmp_path/'requirements.txt').write_text('pydantic==1.10.13\n')
+    (tmp_path/'pyproject.toml').write_text('[project]\ndependencies=["pydantic>=2"]\n')
+    observed=inspect(tmp_path)['findings'];ids=[f['id'] for f in observed]
+    swapped=[dict(path='requirements.txt',before='pydantic==1.10.13',after='pydantic>=2'),dict(path='pyproject.toml',before='pydantic>=2',after='pydantic==1.10.13')]
+    with pytest.raises(ValueError,match='retains referenced'):preflight(tmp_path,swapped,observed,ids)
+    good=[dict(path='pyproject.toml',before='pydantic>=2',after='pydantic==1.10.13')]
+    assert preflight(tmp_path,good,observed,ids)['dependency_constraints']['pydantic']=='compatible'
+    assert 'pydantic>=2' in (tmp_path/'pyproject.toml').read_text()

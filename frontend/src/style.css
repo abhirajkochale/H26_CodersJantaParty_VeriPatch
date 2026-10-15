@@ -3,3 +3,4 @@
 @media(prefers-reduced-motion:reduce){.spin{animation:none}}
 .ai-intro>button{margin-left:auto}@media(max-width:780px){.ai-intro{flex-wrap:wrap}.ai-intro>button{margin-left:47px}}
 .mobile-runs{display:none}@media(max-width:780px){.mobile-runs{display:block;margin-top:15px;border-top:1px solid var(--line);padding-top:12px}.mobile-runs summary{display:flex;align-items:center;gap:8px;list-style:none;color:#9fb4a7;font-size:11px}.mobile-runs summary>svg:last-child{margin-left:auto}.mobile-runs button{display:flex;align-items:center;gap:8px;border:0;background:#18212c;padding:12px;width:100%;margin-top:8px;border-radius:5px;font-size:10px;text-align:left}.mobile-runs .badge{margin-left:auto}}
+.remaining-findings{margin-top:16px;color:#a8b9ca;font-size:11px}.remaining-findings li{margin:11px 0;line-height:1.7}.remaining-findings code{display:block;color:#778da6;font-size:9px}

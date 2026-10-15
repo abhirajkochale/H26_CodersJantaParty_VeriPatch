@@ -24,6 +24,13 @@ def export(run, destination):
         report += [f"### {f['id']} · {f['title']}", f"Evidence: {f['evidence_status']} · Repair: {f['repair_status']}",f['detail'],json.dumps(f['evidence'],indent=2)]
     report += ['\n## Dependency inventory',json.dumps(clean.get('dependencies',[]),indent=2),'\n## AI recommendations (hypotheses)',json.dumps(clean.get('ai',[]),indent=2),
                '\n## Verification',json.dumps(clean.get('comparison',{}),indent=2),'\n## Errors and unresolved concerns',json.dumps(clean.get('errors',[]),indent=2)]
+    for phase in ['baseline','verification']:
+        result=clean.get(phase,{})
+        report += ['\n## Executed '+phase, 'Provider: '+str(result.get('provider','not executed')), 'Counts: `'+json.dumps(result.get('counts'))+'`', 'Profile: `'+str(result.get('profile','unknown'))+'`']
+        if result.get('error'): report.append('Execution error: '+result['error'])
+        report += ['| Command | Exit | Seconds | Timeout |', '|---|---:|---:|---|']
+        for c in result.get('commands',[]): report.append(f"| {c['name']} | {c.get('exit_code','unknown')} | {c.get('duration_seconds','unknown')} | {c.get('timed_out','unknown')} |")
+    applied=clean.get('applied_proposal_id','PROPOSAL_ID')
     reproduction = f'''# Reproduce
 Exact public source: {clean['url']}
 Commit: {clean.get('commit','unknown')}
@@ -36,7 +43,21 @@ Commit: {clean.get('commit','unknown')}
 
 Provider: {clean.get('provider','unknown')}. LOCAL virtual environments are not security sandboxes.
 DigitalOcean requires a configured existing Droplet. See docs/DIGITALOCEAN.md.
-Installations are not fully locked transitively; resolved package versions and runtime are in logs.
+Exact LOCAL execution replay from the VeriPatch project root (executes trusted target code):
+
+```bash
+git clone {clean['url']} /private/tmp/veripatch-reproduce-baseline
+git -C /private/tmp/veripatch-reproduce-baseline checkout --detach {clean.get('commit','COMMIT')}
+app/.venv/bin/python worker/execute.py /private/tmp/veripatch-reproduce-baseline > /private/tmp/baseline.json
+git clone --no-hardlinks /private/tmp/veripatch-reproduce-baseline /private/tmp/veripatch-reproduce-patched
+# Unzip this capsule, then replace /absolute/path/to/capsule below:
+git -C /private/tmp/veripatch-reproduce-patched apply /absolute/path/to/capsule/patches/{applied}.diff
+app/.venv/bin/python worker/execute.py /private/tmp/veripatch-reproduce-patched > /private/tmp/patched.json
+```
+
+Use fresh destination directories. These direct worker invocations are LOCAL; they do not prove DigitalOcean execution. To reproduce cloud execution, configure the SSH worker and submit the recorded URL, commit, applied_edits and canonical patch hash through the fixed protocol described in docs/DIGITALOCEAN.md.
+
+Installations are not fully locked transitively; resolved package versions and runtime are in logs. AI output may differ across repeated calls; replay the recorded diff to reproduce the applied source changes.
 The capsule records observations, AI hypotheses, and executed results separately; no arbitrary model commands are executed.
 '''
     with zipfile.ZipFile(destination,'w',zipfile.ZIP_DEFLATED) as z:

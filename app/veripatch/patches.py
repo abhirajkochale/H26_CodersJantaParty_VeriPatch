@@ -54,3 +54,24 @@ def apply_edits(root, edits):
 
 def patch_hash(edits):
     return hashlib.sha256(json.dumps(edits, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+
+def preflight(root, edits, findings, issue_ids):
+    """Reject new declaration conflicts and proposals that retain their referenced conflict."""
+    import tempfile
+    from .inspection import inspect
+    changed = validate_edits(root, edits)
+    original = inspect(root)
+    with tempfile.TemporaryDirectory(prefix='vp-preflight-') as temp:
+        for path, source in original['files'].items():
+            if not (Path(path).name.startswith('requirements') or Path(path).name=='pyproject.toml' or path in changed): continue
+            target=Path(temp)/path;target.parent.mkdir(parents=True,exist_ok=True)
+            target.write_text(changed.get(path,source))
+        proposed=inspect(temp)
+    before={d['name']:d['constraint_status'] for d in original['dependencies']}
+    after={d['name']:d['constraint_status'] for d in proposed['dependencies']}
+    new_conflicts=[name for name,status in after.items() if status=='conflicting' and before.get(name)!='conflicting']
+    referenced={f.get('dependency') for f in findings if f['id'] in issue_ids and f['rule']=='dependency-conflict'}
+    remaining=[name for name in referenced if after.get(name)=='conflicting']
+    if new_conflicts: raise ValueError('Patch introduces dependency conflicts: '+', '.join(new_conflicts))
+    if remaining: raise ValueError('Patch retains referenced dependency conflicts: '+', '.join(remaining))
+    return dict(syntax_valid=True,dependency_constraints=after,limitations=['Static preflight is not runtime verification. Unknown constraints still need review.'])
