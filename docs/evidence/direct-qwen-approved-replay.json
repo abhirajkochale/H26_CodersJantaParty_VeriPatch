@@ -1,0 +1,242 @@
+{
+  "run_id": "8f5c766cc3e34bfeb359784bfe42d70b",
+  "target_commit": "f52f3930c8e7c33d934ccf614955a38e26984bd5",
+  "proposal_id": "Q-d3c6699c60",
+  "authored_by": "Direct Qwen2.5-Coder 7B (historical proposal, recovered; not Hermes)",
+  "provenance": {
+    "source_run_id": "5f2114e6a2054299b50f3f8aaad0d4ab",
+    "source_proposal_id": "P-d3c6699c60",
+    "source_commit": "f52f3930c8e7c33d934ccf614955a38e26984bd5",
+    "source_engine": "DIRECT_OLLAMA",
+    "source_model": "qwen2.5-coder:7b",
+    "source_at": "2026-10-15T08:04:02.030463+00:00",
+    "recovered_at": "2026-10-15T10:16:58.430459+00:00"
+  },
+  "approval": {
+    "at": "2026-10-15T10:20:19.674032+00:00",
+    "proposal_id": "Q-d3c6699c60",
+    "diff_sha256": "14f2ca39b87fae67dc5ebe5d77ffbc11fa58be1465ed1e2882b20850ac40ffb8",
+    "source": "Explicit human API/CLI approval"
+  },
+  "baseline_counts": {
+    "collected": 10,
+    "passed": 9,
+    "failed": 1,
+    "skipped": 0,
+    "errors": 0
+  },
+  "patched_counts": {
+    "collected": 10,
+    "passed": 9,
+    "failed": 1,
+    "skipped": 0,
+    "errors": 0
+  },
+  "command_exits": {
+    "baseline": {
+      "create-env": 0,
+      "tooling": 0,
+      "install-requirements": 0,
+      "install-project": 0,
+      "dependency-check": 1,
+      "resolved-packages": 0,
+      "compile": 0,
+      "nose-compatibility": 1,
+      "collect-tests": 0,
+      "tests": 1
+    },
+    "verification": {
+      "create-env": 0,
+      "tooling": 0,
+      "install-requirements": 0,
+      "install-project": 0,
+      "dependency-check": 0,
+      "resolved-packages": 0,
+      "compile": 0,
+      "nose-compatibility": 1,
+      "collect-tests": 0,
+      "tests": 1
+    }
+  },
+  "comparison": {
+    "checks_passed": false,
+    "reasons": [
+      "One or more verification commands failed",
+      "No complete passing test suite"
+    ],
+    "before_counts": {
+      "collected": 10,
+      "passed": 9,
+      "failed": 1,
+      "skipped": 0,
+      "errors": 0
+    },
+    "after_counts": {
+      "collected": 10,
+      "passed": 9,
+      "failed": 1,
+      "skipped": 0,
+      "errors": 0
+    },
+    "scope": {
+      "before": [
+        "create-env",
+        "tooling",
+        "install-requirements",
+        "install-project",
+        "dependency-check",
+        "resolved-packages",
+        "compile",
+        "nose-compatibility",
+        "collect-tests",
+        "tests"
+      ],
+      "after": [
+        "create-env",
+        "tooling",
+        "install-requirements",
+        "install-project",
+        "dependency-check",
+        "resolved-packages",
+        "compile",
+        "nose-compatibility",
+        "collect-tests",
+        "tests"
+      ]
+    },
+    "claim": "Passing checks support only the executed profile; individual issues still require reinspection/review."
+  },
+  "test_preservation": {
+    "verified_at": "2026-10-15T10:22:47.474057+00:00",
+    "original_tests_unchanged": true,
+    "baseline_sha256": {
+      "tests/conftest.py": "894d59ff9df4be0da679bbd4efe47637e2c3f8654da1cc1b4ad4867855d3b05c",
+      "tests/test_report.py": "053f4f610e5a33bfdbda20508d57d4bcb79e8de155b0e82f749d1594e4b60c67",
+      "tests/test_config.py": "beb2872ad59af263a852cdd7971ac9415d6819bf24ade83452c3e1b61063d1cf",
+      "tests/test_checker.py": "13e2ff260d47ef104c85937d188ce7874e4bf71c22dc65ad6358f9ea39774ef2",
+      "tests/test_cache.py": "1d3a550344a758e0090624f92e2f3bd3e4716b282728824e01e9a4688101e527"
+    },
+    "patched_sha256": {
+      "tests/conftest.py": "894d59ff9df4be0da679bbd4efe47637e2c3f8654da1cc1b4ad4867855d3b05c",
+      "tests/test_report.py": "053f4f610e5a33bfdbda20508d57d4bcb79e8de155b0e82f749d1594e4b60c67",
+      "tests/test_config.py": "beb2872ad59af263a852cdd7971ac9415d6819bf24ade83452c3e1b61063d1cf",
+      "tests/test_checker.py": "13e2ff260d47ef104c85937d188ce7874e4bf71c22dc65ad6358f9ea39774ef2",
+      "tests/test_cache.py": "1d3a550344a758e0090624f92e2f3bd3e4716b282728824e01e9a4688101e527"
+    },
+    "protected_files": 5
+  },
+  "findings": [
+    {
+      "id": "F-7904ab7fa1",
+      "title": "HTTP call has no explicit timeout",
+      "repair_status": "unresolved",
+      "verification_support": null
+    },
+    {
+      "id": "F-7cf6ec114e",
+      "title": "Pydantic v1-style validator",
+      "repair_status": "unresolved",
+      "verification_support": null
+    },
+    {
+      "id": "F-ace747ac1c",
+      "title": "Pydantic v1-style validator",
+      "repair_status": "unresolved",
+      "verification_support": null
+    },
+    {
+      "id": "F-e045e6163c",
+      "title": "URL validation checks only a prefix",
+      "repair_status": "unresolved",
+      "verification_support": null
+    },
+    {
+      "id": "F-e38ea6df59",
+      "title": "Private API import",
+      "repair_status": "unresolved",
+      "verification_support": null
+    },
+    {
+      "id": "F-777c4b0bdd",
+      "title": "Dynamic codec lookup can fail",
+      "repair_status": "unresolved",
+      "verification_support": null
+    },
+    {
+      "id": "F-1e538d2d13",
+      "title": "Global HTTP behavior is replaced",
+      "repair_status": "unresolved",
+      "verification_support": null
+    },
+    {
+      "id": "F-4af2e3a3cd",
+      "title": "Deprecated or removed module",
+      "repair_status": "unresolved",
+      "verification_support": null
+    },
+    {
+      "id": "F-3301259884",
+      "title": "Direct import has no matching declaration",
+      "repair_status": "unresolved",
+      "verification_support": null
+    },
+    {
+      "id": "F-d74ef719bc",
+      "title": "Legacy test infrastructure needs Python 3.12 validation",
+      "repair_status": "needs_review",
+      "verification_support": null
+    },
+    {
+      "id": "F-dbaf11bb4c",
+      "title": "Conflicting declarations: pydantic",
+      "repair_status": "fixed",
+      "verification_support": {
+        "static_observation_absent": true,
+        "dependency_check_exit": 0,
+        "profile_passed": false
+      }
+    },
+    {
+      "id": "F-94f7a6789f",
+      "title": "Conflicting declarations: pydantic",
+      "repair_status": "fixed",
+      "verification_support": {
+        "static_observation_absent": true,
+        "dependency_check_exit": 0,
+        "profile_passed": false
+      }
+    },
+    {
+      "id": "X-4",
+      "title": "dependency-check failed",
+      "repair_status": "fixed",
+      "verification_support": {
+        "command": "dependency-check",
+        "exit_code": 0,
+        "profile_passed": false
+      }
+    },
+    {
+      "id": "X-7",
+      "title": "nose-compatibility failed",
+      "repair_status": "unresolved",
+      "verification_support": {
+        "command": "nose-compatibility",
+        "exit_code": 1,
+        "profile_passed": false
+      }
+    },
+    {
+      "id": "X-9",
+      "title": "tests failed",
+      "repair_status": "unresolved",
+      "verification_support": {
+        "command": "tests",
+        "exit_code": 1,
+        "profile_passed": false
+      }
+    }
+  ],
+  "capsule": "/Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch/.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/dependency-exit-capsule.zip",
+  "capsule_sha256": "776e66e9d7f07128ee9a2bd75fab4f88170e9ecc4f2e5dcfa2a2ddf8960415df"
+}

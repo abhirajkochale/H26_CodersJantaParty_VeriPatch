@@ -1,88 +1,65 @@
 # VeriPatch
 
-**CodersJantaParty · Track 2: Maintenance Agent Skill**
+VeriPatch provides a working **direct-Qwen proposal → human approval → isolated LOCAL verification → Dependency Exit Capsule** workflow. The actual NousResearch Hermes Agent is retained for repository inspection and baseline verification, with real tool evidence. Hermes patch generation is disabled: its autonomous repair proposals were unreliable. These roles and their timestamps remain separate in the dashboard and capsule.
 
-VeriPatch inspects a public Python repository, records an executed baseline, asks local Qwen for evidence-backed repair proposals, applies a selected exact-match patch in a separate clone, reruns the same checks, and exports a reusable **Dependency Exit Capsule**.
+The original LinkWatch code, tests and MIT license are preserved. Its README is archived in [docs/UPSTREAM_README.md](docs/UPSTREAM_README.md). No cloud credentials or DigitalOcean deployment are required.
 
-The original LinkWatch source, tests, dependency declarations and MIT license are preserved. Its original README is archived at [docs/UPSTREAM_README.md](docs/UPSTREAM_README.md). VeriPatch's application environment is separate from LinkWatch.
+## Demonstrated result
 
-## Start on macOS
+Actual target: `https://github.com/rishrek/LinkWatch`, commit `f52f3930c8e7c33d934ccf614955a38e26984bd5`.
 
-From this checkout (the path below is the actual workspace):
+The user approved recovered direct-Qwen proposal `Q-d3c6699c60`: change both Pydantic declarations to `>=2.4.2`. It is the exact earlier Qwen2.5-Coder 7B proposal from run `5f2114e6a2054299b50f3f8aaad0d4ab`, not a new inference or Hermes-authored patch. Fresh LOCAL verification ran in a separate clone/environment.
+
+| Check | Baseline | Approved patch |
+|---|---|---|
+| pip check | exit 1 | **exit 0** |
+| Original test collection | 10 | 10 |
+| Original tests | 9 passed / 1 failed | 9 passed / 1 failed |
+| Skipped tests | 0 | 0 |
+| Nose compatibility | exit 1 | exit 1 |
+
+The dependency conflict is fixed; the complete profile still fails. Nose imports removed `imp` on Python 3.12, and report generation fails because Jinja2 2.11.3 imports removed MarkupSafe `soft_unicode`. All five original test files have identical SHA-256 hashes before/after. Other detected issues remain unresolved or need review. [Measured evidence](docs/evidence/direct-qwen-approved-replay.json) and [demo instructions](docs/HERMES_DEMO.md) give the exact details.
+
+Fresh capsule: `.veripatch/8f5c766cc3e34bfeb359784bfe42d70b/dependency-exit-capsule.zip`.
+
+## Start the existing local installation
 
 ```bash
 cd /Users/nishi/Downloads/Developer/H26_CodersJantaParty_VeriPatch
-python3.12 -m venv app/.venv
-app/.venv/bin/pip install -r app/requirements.txt
-npm ci --prefix frontend
-npm run build --prefix frontend
-cp .env.example .env
-```
-
-Ollama must already serve the configured model locally:
-
-```bash
-ollama serve
-# In another terminal, if the model is not already installed:
-ollama pull qwen2.5-coder:7b
-```
-
-Start the coordinator and built dashboard together:
-
-```bash
 PYTHONPATH=app app/.venv/bin/python -m veripatch serve
 ```
 
-Open **http://127.0.0.1:8000**. The server binds to loopback. Ollama stays on loopback; do not expose it publicly. For frontend development, run `npm run dev --prefix frontend` in another terminal and open http://127.0.0.1:5173.
+Open http://127.0.0.1:8000. Ollama should already run on loopback. The installed repair model is `qwen2.5-coder:7b`; optional Hermes inspection uses the installed `veripatch-qwen3.5:4b-64k` model. Models are serialized, with no cloud fallback. No new installation or download is needed for this demo.
 
-## CLI
+For a fresh application installation: Python 3.12 venv at `app/.venv`, `pip install -r app/requirements.txt`, then `npm ci --prefix frontend` and `npm run build --prefix frontend`. Hermes stays in a separate official PM-managed Python 3.14 environment; see [docs/HERMES_SETUP.md](docs/HERMES_SETUP.md). Do not install it into the app environment.
+
+## Workflow and CLI
+
+The dashboard defaults to direct Qwen repair planning. **AI & patches** shows provenance, exact diffs, uncertainty and **Approve patch & verify**. **Agent activity** retains actual Hermes inspection and failed-generation history, explicitly labeled as retained evidence. **Verification** shows actual command logs and before/after counts. **Export capsule** downloads current evidence.
 
 ```bash
-PYTHONPATH=app app/.venv/bin/python -m veripatch model-smoke
+# New direct-Qwen run (default); records the exact source commit.
 PYTHONPATH=app app/.venv/bin/python -m veripatch analyze https://github.com/rishrek/LinkWatch --provider LOCAL
-PYTHONPATH=app app/.venv/bin/python -m veripatch list
+# Optional Hermes inspection/baseline only; no patch tools exposed.
+PYTHONPATH=app app/.venv/bin/python -m veripatch analyze https://github.com/rishrek/LinkWatch --engine HERMES --provider LOCAL
+# Plan a direct-Qwen repair from retained evidence.
 PYTHONPATH=app app/.venv/bin/python -m veripatch plan RUN_ID
-PYTHONPATH=app app/.venv/bin/python -m veripatch apply RUN_ID PROPOSAL_ID
-PYTHONPATH=app app/.venv/bin/python -m veripatch capsule RUN_ID --output /private/tmp/veripatch-capsule.zip
+# Explicit approval after reviewing the displayed exact diff.
+PYTHONPATH=app app/.venv/bin/python -m veripatch apply RUN_ID PROPOSAL_ID --approve
+PYTHONPATH=app app/.venv/bin/python -m veripatch capsule RUN_ID --output capsule.zip
 ```
 
-`analyze --commit FULL_SHA` reproduces an exact commit. The dashboard analyzes current HEAD and records its exact SHA. No model response or target finding is pre-generated or hardcoded. CLI and UI share `.veripatch/` state; only one mutating operation may run at a time, including across coordinator processes.
+`--commit FULL_SHA` selects an exact target revision. CLI and dashboard share atomic `.veripatch/` state and an operation lock. Exact-match/preflight checks, protected tests/configuration, explicit approval, fixed command profiles and collection/skip comparisons remain enforced. At most three approved repair attempts are allowed.
 
-**LOCAL runs trusted target code on your Mac in a disposable Python 3.12 virtual environment. A venv is not a security sandbox.** Use the DigitalOcean container worker for untrusted code. Both modes install dependencies and execute target tests. All execution is explicitly labeled with its actual provider.
+LOCAL executes trusted target code in disposable Python 3.12 venvs; it is not a security sandbox. DigitalOcean remains optional and has never been demonstrated. Existing cloud code is retained; it is not used by this demo.
 
-## DigitalOcean is part of the architecture
-
-An existing DigitalOcean Linux Droplet runs the fixed SSH worker. It clones the exact commit, validates and hashes edits, installs target dependencies and executes baseline/patched checks inside resource-limited disposable Python 3.12 Docker containers. Results include the Droplet ID from metadata, container image ID, command logs, exit codes, runtime, durations and test counts.
-
-No Droplet is provisioned automatically. Without access the app displays **“DigitalOcean not configured.”** No local result is relabeled as cloud execution. Follow [docs/DIGITALOCEAN.md](docs/DIGITALOCEAN.md), configure `.env`, restart the coordinator, run `worker-smoke`, then choose DigitalOcean in the dashboard. Real cloud validation is required before claiming the mandatory integration was demonstrated.
-
-## Checks
+## Checks and attribution
 
 ```bash
 PYTHONPATH=app app/.venv/bin/python -m pytest app/tests -q
 npm run build --prefix frontend
-PYTHONPATH=app app/.venv/bin/python -m veripatch model-smoke
-PYTHONPATH=app app/.venv/bin/python -m veripatch worker-smoke
 ```
 
-Use **app/tests**, not the preserved upstream `tests/`, for application tests. Upstream tests are exercised separately inside each target run. See [docs/VALIDATION.md](docs/VALIDATION.md) for actual measured results and missing access.
+Current checks: **59 application tests pass** (one Starlette/httpx deprecation warning); frontend production build passes. Original upstream tests are verified separately in the target runner, never deleted, skipped or weakened to manufacture success.
 
-## What the dashboard provides
-
-Repository input and real run history; Ollama/worker connection checks; backend stages; supported-file coverage and skipped-file reasons; dependency declarations and import usage; filterable evidence-linked findings; runtime Qwen recommendations, an integrated baseline-repair planning pass, and readable diffs; isolated apply-and-verify; baseline/patched command logs and test counts; and a downloadable ZIP with JSON, report, patches, logs and reproduction steps.
-
-Evidence status (`source_observed`, `execution_verified`, `ai_hypothesis`) is separate from repair status (`unresolved`, `proposed`, `applied`, `checks_passed`, `failed`, `needs_review`). A successful analysis is never presented as a successfully repaired repository. A passing suite supports only the executed profile. Static reinspection is required before an associated source observation is marked `checks_passed`; runtime findings still require review.
-
-## Model, licenses, references
-
-Qwen2.5-Coder 7B is an open-weight code model by the Qwen team, accessed through Ollama tag `qwen2.5-coder:7b`, `POST /api/chat`, with schema-based `format`, `stream:false`, low temperature, 8K context, bounded source/log batches, explicit timeouts and at most one corrective structured-output retry. Qwen performs runtime root-cause explanation, repair planning, exact edits, regression suggestions and uncertainty assessment. VeriPatch does not train or fine-tune it.
-
-- [Qwen model card and Apache 2.0 license](https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct)
-- [Official Qwen2.5-Coder release and license description](https://qwenlm.github.io/blog/qwen2.5-coder/)
-- [Ollama model distribution](https://ollama.com/library/qwen2.5-coder)
-- [Organizer's original LinkWatch](https://github.com/rishrek/LinkWatch)
-- [Submission repository](https://github.com/abhirajkochale/H26_CodersJantaParty_VeriPatch)
-
-Application additions use MIT, see [LICENSE-VERIPATCH](LICENSE-VERIPATCH). Upstream copyright and [LICENSE](LICENSE) remain intact. Third-party notices and roles: [docs/ATTRIBUTION.md](docs/ATTRIBUTION.md).
-
-Read [architecture and module guide](docs/ARCHITECTURE.md), [presentation and demo](docs/PRESENTATION.md), and [DigitalOcean deployment](docs/DIGITALOCEAN.md) for team handoff.
+Original contribution: guarded maintenance tools, explicit review/approval, isolated fixed verification, evidence-linked issue inventory and reusable capsules. Hermes supplies the existing open-source agent/tool loop (MIT, `git.db44c46`); Qwen models supply local inference (Apache-2.0). See [ATTRIBUTION.md](ATTRIBUTION.md), [architecture](docs/ARCHITECTURE.md), [Hermes setup/evidence](docs/HERMES_SETUP.md), and [validation](docs/VALIDATION.md). No GitHub push was performed.

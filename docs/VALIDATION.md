@@ -1,3 +1,17 @@
+# Current validation · 2026-10-15
+
+Final architecture: direct-Qwen guarded repair proposals and human-approved LOCAL verification; actual Hermes inspection/baseline tools retained separately. Hermes patch generation is disabled. Historical evidence is not new inference.
+
+Approved exact replay `Q-d3c6699c60`, target commit `f52f3930c8e7c33d934ccf614955a38e26984bd5`: pip check exit **1 → 0**; original tests **10 collected, 9 passed, 1 failed, 0 skipped before and after**. All five original test files have identical hashes. Nose and Jinja2/MarkupSafe report failures remain; overall profile fails honestly.
+
+Combined application tests: **59 passed**, one Starlette/httpx deprecation warning. Frontend production build passed. No GitHub push or new model/download occurred during finalization.
+
+Current measured artifact: `docs/evidence/direct-qwen-approved-replay.json`. Fresh capsule and short demo are documented in `docs/HERMES_DEMO.md`.
+
+---
+
+## Historical direct-Qwen validation (retained)
+
 # Actual validation — 15 October 2026
 
 This file records executed results, not fixture data or predetermined dashboard metrics.
@@ -64,4 +78,4 @@ Run artifacts live in gitignored `.veripatch/`; they are deliberately not embedd
 
 **DigitalOcean not configured.** No SSH host/key/agent access was supplied. The required worker integration, deployment script, identity checks, resource limits, failure handling and tests are implemented, but **actual DigitalOcean execution has not been demonstrated**. Local Docker is installed but its daemon is stopped, so no local Docker-container validation occurred either. LOCAL venv execution did run successfully as a mechanism and honestly reported target failures.
 
-The next concrete hackathon action is to deploy the worker on an existing DigitalOcean Droplet using `docs/DIGITALOCEAN.md`, verify its SSH fingerprint, configure `.env`, restart the coordinator, run `worker-smoke`, then analyze and apply a reviewed proposal with provider DIGITALOCEAN. Capture genuine remote logs/capsule for the mandatory cloud demonstration. No billable resources were provisioned, no remote deployment was attempted without access, and no Git changes were pushed.
+Historical cloud plan, superseded by the local-only organizer update: deploy the worker on an existing DigitalOcean Droplet using `docs/DIGITALOCEAN.md`, verify its SSH fingerprint, configure `.env`, restart the coordinator, run `worker-smoke`, then analyze and apply a reviewed proposal with provider DIGITALOCEAN. Capture genuine remote logs/capsule for the previously requested cloud demonstration. No billable resources were provisioned, no remote deployment was attempted without access, and no Git changes were pushed.

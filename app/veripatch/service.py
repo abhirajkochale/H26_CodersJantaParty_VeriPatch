@@ -64,7 +64,7 @@ def execute_analysis(run, release):
                 result=ai.analyze(batch,run.get('baseline',{}))[0]
                 run['ai'].append(result)
                 for proposed in result['response']['recommendations']:
-                    proposal=dict(proposed,id='P-'+uuid.uuid4().hex[:10],status='proposed',evidence_status='ai_hypothesis')
+                    proposal=dict(proposed,authored_by='Direct Qwen via Ollama',id='P-'+uuid.uuid4().hex[:10],status='proposed',evidence_status='ai_hypothesis')
                     try:
                         supplied_paths = {item['path'] for item in result.get('source_context', [])}
                         if any(edit['path'] not in supplied_paths for edit in proposal['edits']):
@@ -94,16 +94,18 @@ def recover_interrupted():
             old['errors'].append('Interrupted operation; inspect retained artifacts and start a new analysis or retry a proposal.')
             store.save(old)
 
-def start(url,provider,commit=None):
+def start(url,provider,commit=None,engine="DIRECT"):
     url=repository_url(url)
+    if engine not in {'HERMES','DIRECT'}: raise ValueError('Invalid engine')
+    if engine=='HERMES' and provider!='LOCAL': raise ValueError('Hermes demo uses LOCAL verification')
     if commit and not __import__('re').fullmatch('[0-9a-f]{40}',commit): raise ValueError('Invalid commit')
     if provider not in {'LOCAL','DIGITALOCEAN'}: raise ValueError('Invalid provider')
     release=store.reserve()
     try:
         recover_interrupted()
         run=dict(id=uuid.uuid4().hex,url=url,provider=provider,created_at=now(),updated_at=now(),status='running',stage='Queued',
-                 requested_commit=commit,events=[],findings=[],dependencies=[],ai=[],proposals=[],errors=[],limitations=['AI recommendations require human review. No claim of exhaustive bug discovery.'])
-        store.save(run); pool.submit(execute_analysis,run,release)
+                 requested_commit=commit,engine=engine,events=[],findings=[],dependencies=[],ai=[],proposals=[],errors=[],limitations=['AI recommendations require human review. No claim of exhaustive bug discovery.'])
+        store.save(run); pool.submit(execute_hermes_analysis if engine=="HERMES" else execute_analysis,run,release)
         return run
     except Exception: release(); raise
 
@@ -140,6 +142,7 @@ def execute_apply(run, proposal,release):
                 supported=all((f['rule'],e.get('path')) not in remaining for e in f['evidence']) and f['evidence_status']=='source_observed'
                 f['repair_status']='checks_passed' if run['comparison']['checks_passed'] and supported else ('needs_review' if run['comparison']['checks_passed'] else 'failed')
                 f['verification_support']={'profile_passed':run['comparison']['checks_passed'],'static_observation_absent':supported,'execution_commands':[c['name'] for c in run['verification']['commands']]}
+        reconcile_verification_findings(run,proposal)
         proposal['status']='checks_passed' if run['comparison']['checks_passed'] else 'failed'
         run.setdefault('verification_attempts', []).append(copy.deepcopy(dict(proposal_id=proposal['id'],at=now(),edits=proposal['edits'],verification=run['verification'],comparison=run['comparison'])))
         run['status']='completed'; step(run,'Verification complete · inspect results')
@@ -151,16 +154,21 @@ def execute_apply(run, proposal,release):
         run['status']='completed_with_errors'; run['errors'].append('Patch verification: '+str(e)); step(run,'Patch verification failed')
     finally: release()
 
-def start_apply(id,proposal_id):
+def start_apply(id,proposal_id,approved=False):
     release=store.reserve()
     try:
         recover_interrupted()
         run=store.get(id)
         if run['status']=='running': raise ValueError('Run is busy')
+        if not approved:raise ValueError('Explicit human approval required')
+        if run.get('engine')=='HERMES':raise ValueError('Hermes is inspection-only; obtain a direct-Qwen proposal first')
+        if len(run.get('verification_attempts',[]))>=3:raise ValueError('Maximum three approved repair attempts reached')
         proposal=next((p for p in run['proposals'] if p['id']==proposal_id),None)
-        if not proposal or proposal['status']=='invalid': raise ValueError('No valid proposal')
+        if not proposal or proposal['status']!='proposed': raise ValueError('No pending valid proposal')
         try:
-            proposal['preflight']=preflight(store.directory(id)/'baseline-repo',proposal['edits'],run['findings'],proposal['issue_ids'])
+            source=store.directory(id)/'baseline-repo'
+            proposal['preflight']=preflight(source,proposal['edits'],run['findings'],proposal['issue_ids'])
+            if diff_edits(source,proposal['edits'])!=proposal['diff']:raise ValueError('Reviewed diff changed; create a new proposal')
         except ValueError as e:
             proposal.update(status='invalid',error=str(e))
             for f in run['findings']:
@@ -169,6 +177,8 @@ def start_apply(id,proposal_id):
             run['errors'].append('Rejected proposal '+proposal['id']+': '+str(e))
             store.save(run)
             raise
+        run['active_approval']=dict(at=now(),proposal_id=proposal_id,diff_sha256=hashlib.sha256(proposal['diff'].encode()).hexdigest(),source='Explicit human API/CLI approval')
+        run.setdefault('approvals',[]).append(copy.deepcopy(run['active_approval']))
         run['status']='running'
         for field in ['verification','comparison','reinspection','applied_proposal_id','applied_edits']: run.pop(field,None)
         store.save(run); pool.submit(execute_apply,run,proposal,release)
@@ -189,7 +199,7 @@ def execute_plan(run, release):
         run['ai'].append(result)
         supplied_paths = {item['path'] for item in result.get('source_context',[])}
         for proposed in result['response']['recommendations']:
-            proposal = dict(proposed,id='P-'+uuid.uuid4().hex[:10],status='proposed',evidence_status='ai_hypothesis',integrated=True)
+            proposal = dict(proposed,authored_by='Direct Qwen via Ollama',id='P-'+uuid.uuid4().hex[:10],status='proposed',evidence_status='ai_hypothesis',integrated=True)
             try:
                 if any(edit['path'] not in supplied_paths for edit in proposal['edits']): raise ValueError('Patch is outside supplied relevant source context')
                 proposal['preflight'] = preflight(repo,proposal['edits'],run['findings'],proposal['issue_ids'])
@@ -213,6 +223,45 @@ def start_plan(id):
         recover_interrupted()
         run=store.get(id)
         if not run.get('commit'): raise ValueError('Repository baseline is not available')
+        if run.get('engine')=='HERMES':run.update(engine='DIRECT',inspection_engine='HERMES')
+        run['repair_engine']='DIRECT_QWEN'
         run['status']='running';store.save(run);pool.submit(execute_plan,run,release)
         return run
     except Exception: release();raise
+
+
+def execute_hermes_analysis(run,release):
+    from .hermes import converse
+    try:
+        repo=store.directory(run['id'])/'baseline-repo'
+        step(run,'Cloning exact target for Hermes')
+        git(['clone','--quiet','--no-recurse-submodules',run['url'],str(repo)])
+        if run.get('requested_commit'):git(['checkout','--detach',run['requested_commit']],repo)
+        run['commit']=git(['rev-parse','HEAD'],repo)
+        run.update({k:v for k,v in inspect(repo).items() if k!='files'})
+        step(run,'Hermes inspecting repository and baseline with real tools')
+        converse(run,repo,__import__(__name__,fromlist=['']), 'analyze')
+        run['status']='completed'
+        step(run,'Hermes inspection complete · direct-Qwen repair planning available')
+    except Exception as e:
+        run['status']='completed_with_errors';run['errors'].append('Hermes: '+str(e));step(run,'Hermes blocked · retained actual evidence')
+    finally:release()
+
+
+
+
+def reconcile_verification_findings(run,proposal):
+    """Record an individual dependency fix without claiming the entire profile passed."""
+    remaining={(f['rule'],e.get('path')) for f in run.get('reinspection',{}).get('findings',[]) for e in f['evidence']}
+    commands={c['name']:c for c in run.get('verification',{}).get('commands',[])}
+    for finding in run['findings']:
+        if finding['rule']=='execution-failure':
+            name=finding['title'].removesuffix(' failed');command=commands.get(name)
+            if command:
+                finding['repair_status']='fixed' if command['exit_code']==0 else 'unresolved'
+                finding['verification_support']=dict(command=name,exit_code=command['exit_code'],profile_passed=run['comparison']['checks_passed'])
+        elif finding['id'] in proposal['issue_ids']:
+            absent=all((finding['rule'],e.get('path')) not in remaining for e in finding['evidence'])
+            dependency_verified=finding['rule']=='dependency-conflict' and absent and commands.get('dependency-check',{}).get('exit_code')==0
+            finding['repair_status']='fixed' if dependency_verified else 'needs_review'
+            finding['verification_support']=dict(static_observation_absent=absent,dependency_check_exit=commands.get('dependency-check',{}).get('exit_code'),profile_passed=run['comparison']['checks_passed'])

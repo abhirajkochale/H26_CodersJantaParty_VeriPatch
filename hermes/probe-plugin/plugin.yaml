@@ -1,0 +1,3 @@
+name: veripatch-probe
+version: "1.0.0"
+description: Read-only real repository tool compatibility probe

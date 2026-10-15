@@ -35,9 +35,11 @@ async def local_origin(request:Request,call_next):
 class CreateRun(BaseModel):
     url:str=Field(max_length=300)
     provider:str='LOCAL'
+    engine:str='DIRECT'
 
 class Apply(BaseModel):
     proposal_id:str=Field(max_length=50)
+    approved:bool=False
 
 def lookup(id):
     try:return service.store.get(id)
@@ -51,7 +53,9 @@ def health():
         model['available']=any(x['name']==ai.MODEL for x in r.json().get('models',[]))
         if not model['available']:model['error']='Configured model is not installed'
     except Exception as e:model['error']=str(e)
-    return {'ollama':model,'digitalocean':{'configured':bool(os.getenv('DO_SSH_HOST')),'message':'Configured; use connection check' if os.getenv('DO_SSH_HOST') else 'DigitalOcean not configured.'},'python':'3.12 required','local':'Trusted-code runner; disposable venv, not a sandbox.'}
+    from .hermes import readiness
+    hermes=readiness()
+    return {'hermes':hermes,'ollama':{'model':hermes['model'],'available':hermes.get('model_installed',False)},'legacy_direct_ollama':model,'digitalocean':{'configured':bool(os.getenv('DO_SSH_HOST')),'message':'Configured; use connection check' if os.getenv('DO_SSH_HOST') else 'DigitalOcean not configured.'},'python':'3.12 required','local':'Trusted-code runner; disposable venv, not a sandbox.'}
 
 @app.post('/api/model/smoke')
 def model_smoke():
@@ -72,14 +76,14 @@ def get_run(id:str):return lookup(id)
 
 @app.post('/api/runs',status_code=202)
 def create(body:CreateRun):
-    try:return service.start(body.url,body.provider)
+    try:return service.start(body.url,body.provider,engine=body.engine)
     except ValueError as e:raise HTTPException(400,str(e))
     except RuntimeError as e:raise HTTPException(409,str(e))
 
 @app.post('/api/runs/{id}/apply',status_code=202)
 def apply(id:str,body:Apply):
     lookup(id)
-    try:return service.start_apply(id,body.proposal_id)
+    try:return service.start_apply(id,body.proposal_id,approved=body.approved)
     except (ValueError,StopIteration) as e:raise HTTPException(400,str(e))
     except RuntimeError as e:raise HTTPException(409,str(e))
 

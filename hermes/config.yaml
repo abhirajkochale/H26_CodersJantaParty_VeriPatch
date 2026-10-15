@@ -1,0 +1,22 @@
+model:
+  default: veripatch-qwen3.5:4b-64k
+  provider: custom
+  base_url: http://127.0.0.1:11434/v1
+  context_length: 65536
+  ollama_num_ctx: 65536
+  streaming: false
+fallback_providers: []
+plugins:
+  enabled: [veripatch-probe, veripatch-maintenance]
+agent:
+  max_turns: 16
+  max_api_retries: 0
+compression:
+  enabled: false
+memory:
+  enabled: false
+security:
+  allow_lazy_installs: false
+tools:
+  tool_search:
+    enabled: off

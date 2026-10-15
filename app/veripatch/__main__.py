@@ -24,9 +24,10 @@ def main():
     sub.add_parser('model-smoke')
     sub.add_parser('worker-smoke')
     a=sub.add_parser('analyze');a.add_argument('url');a.add_argument('--provider',choices=['LOCAL','DIGITALOCEAN'],default='LOCAL')
+    a.add_argument('--engine',choices=['HERMES','DIRECT'],default='DIRECT')
     a.add_argument('--commit',help='Optional exact 40-character commit for reproducible runs')
     a=sub.add_parser('plan');a.add_argument('run_id')
-    a=sub.add_parser('apply');a.add_argument('run_id');a.add_argument('proposal_id')
+    a=sub.add_parser('apply');a.add_argument('run_id');a.add_argument('proposal_id');a.add_argument('--approve',action='store_true',help='Human approval of the displayed exact patch')
     a=sub.add_parser('capsule');a.add_argument('run_id');a.add_argument('--output',default='capsule.zip')
     sub.add_parser('list')
     args=p.parse_args()
@@ -38,7 +39,7 @@ def main():
     elif args.command=='list': print(json.dumps([{k:r.get(k) for k in ['id','url','status','stage']} for r in service.store.list()],indent=2))
     elif args.command=='capsule': print(export(service.store.get(args.run_id),args.output))
     else:
-        run=service.start(args.url,args.provider,args.commit) if args.command=='analyze' else service.start_plan(args.run_id) if args.command=='plan' else service.start_apply(args.run_id,args.proposal_id)
+        run=service.start(args.url,args.provider,args.commit,args.engine) if args.command=='analyze' else service.start_plan(args.run_id) if args.command=='plan' else service.start_apply(args.run_id,args.proposal_id,approved=args.approve)
         previous=None
         while True:
             run=service.store.get(run['id'])
